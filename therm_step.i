@@ -11,6 +11,7 @@
 
 [Variables]
   [T]
+    initial_condition = 300.0
   []
 []
 
@@ -19,12 +20,22 @@
     type = HeatConduction
     variable = T
   []
+  [time_derivative]
+    type = HeatConductionTimeDerivative
+    variable = T
+  []
 []
 
 [Materials]
   [thermal]
     type = HeatConductionMaterial
     thermal_conductivity = 45.0
+    specific_heat = 0.5
+  []
+  [density]
+    type = GenericConstantMaterial
+    prop_names = 'density'
+    prop_values = 8000.0
   []
 []
 
@@ -49,6 +60,22 @@
   dt = 1
 []
 
+[VectorPostprocessors]
+  [t_sampler]
+    type = LineValueSampler
+    variable = T
+    start_point = '0 0.5 0'
+    end_point = '2 0.5 0'
+    num_points = 20
+    sort_by = x
+  []
+[]
+
 [Outputs]
   exodus = true
+#  [csv]
+#    type = CSV
+#    file_base = therm_step_out
+#    execute_on = final
+#  []
 []
