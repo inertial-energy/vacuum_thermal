@@ -17,8 +17,8 @@
     primary_block = 'stator_volume'
     paired_block = 'vacuum_volume'
     new_boundary = 'stator_inner_surface_sideset'
-  [../]
   []
+[]
 
 [Variables]
   [Temperature]
@@ -30,13 +30,13 @@
     type = ConstantIC
     variable = Temperature
     block = 'rotor_volume'
-    value = 80
+    value = 70 # K
   []
   [vacuum_IC]
     type = ConstantIC
     variable = Temperature 
     block = 'vacuum_volume'
-    value = 80
+    value = 70
   []
   [stator_IC]
     type = ConstantIC
@@ -61,55 +61,64 @@
   [vacuum_radiation]
     boundary = 'stator_inner_surface_sideset rotor_outer_surface_sideset'
     emissivity = '0.03 0.03'
-    n_patches = '2 2'
+    n_patches = '1 1'
     temperature = Temperature
     ray_tracing_face_type = 'GAUSS'
-    # fixed_temperature_boundary = 'stator_inner_surface_sideset'
-    # fixed_boundary_temperatures = 300
   []
 []
 
 [Materials]
   [thermal_rotor]
     type = HeatConductionMaterial
-    thermal_conductivity = 45.0
-    specific_heat = 0.5
+    thermal_conductivity = 100.0 # W / (m K)
+    specific_heat = 900.0 # J / (kg K)
     block = 'rotor_volume'
   []
   [thermal_vacuum]
     type = HeatConductionMaterial
-    thermal_conductivity = 0
-    specific_heat = 0
+    thermal_conductivity = 0.
+    specific_heat = 1000.0
     block = 'vacuum_volume'
   []
   [thermal_stator]
     type = HeatConductionMaterial
-    thermal_conductivity = 25.0
-    specific_heat = 1
+    thermal_conductivity = 225.0
+    specific_heat = 900.0
     block = 'stator_volume'
   []
-  [density]
+  [density_rotor_stator]
     type = GenericConstantMaterial
     prop_names = 'density'
-    prop_values = 8000.0
+    prop_values = 2710.0 # kg / m^3
+    block = 'rotor_volume stator_volume'
   []
-[]
+  [density_air]
+    type = GenericConstantMaterial
+    prop_names = 'density'
+    prop_values = 0.00021773 # kg / m^3
+    block = 'vacuum_volume'
+  [][]
 
-# [BCs]
-#  [temperature_stator]
-#    type = DirichletBC
-#    variable = Temperature
-#    value = 300
-#    boundary = 'stator_inner_surface'
-#  []
-# []
+[BCs]
+ [temperature_stator]
+   type = DirichletBC
+   variable = Temperature
+   value = 300
+   boundary = 'stator_outer_surface'
+ []
+[]
 
 [Executioner]
   type = Transient
-  end_time = 5
-  dt = 1
+  end_time = 43200
+  dt = 3600
 []
 
 [Outputs]
   exodus = true
+  [rays]
+    type = RayTracingExodus
+    study = ray_study_uo_vacuum_radiation
+    execute_on = 'INITIAL'
+  []
 []
